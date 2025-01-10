@@ -86,7 +86,7 @@ int main() {
   std::println("]");
 
   std::println("");
-  for (auto x : vec.slice(ds::start, ds::end)) {
+  for (auto x : vec.slice(ds::start, ds::end, 2)) {
     std::println("{0}", x);
   }
 

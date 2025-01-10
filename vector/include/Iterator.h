@@ -28,6 +28,9 @@ public:
   Iterator(pointer ptr_start)
       : m_ptr_current(ptr_start), m_ptr_start(ptr_start) {};
 
+  Iterator(pointer ptr_start, int64_t step)
+      : m_ptr_current(ptr_start), m_ptr_start(ptr_start), m_step(step) {};
+
   Iterator(pointer ptr_start, pointer ptr_end, optional_int begin,
            optional_int end, optional_int step)
       : m_ptr_current(ptr_start), m_ptr_start(ptr_start), m_ptr_end(ptr_end) {

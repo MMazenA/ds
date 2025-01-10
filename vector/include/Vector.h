@@ -85,11 +85,11 @@ public:
     };
 
     Iterator<value_type> begin() {
-      return Iterator<value_type>(&(m_parent.m_raw[m_start]));
+      return Iterator<value_type>(&(m_parent.m_raw[m_start]), m_step);
     };
     Iterator<value_type> end() {
 
-      return Iterator<value_type>(&(m_parent.m_raw[m_end]));
+      return Iterator<value_type>(&(m_parent.m_raw[m_end]), m_step);
     };
 
   private:
