@@ -75,22 +75,31 @@ int main() {
   test_move(iterations, true);
   ds::vector<int> vec;
   vec.push_back(5);
+  vec.push_back(15);
+  vec.push_back(20);
+  vec.push_back(25);
 
+  std::print("[");
   for (auto x : vec) {
-    if (x == 5) {
-      vec.push_back(20);
-      vec.push_back(20);
-      vec.push_back(20);
-    }
+    std::print("{0} ", x);
+  }
+  std::println("]");
+
+  std::println("");
+  for (auto x : vec.slice(ds::start, ds::end)) {
     std::println("{0}", x);
   }
+
   vec.push_back(3);
+
+  std::println("");
+  std::println("");
   std::println("reverse indexing: {0}", vec(-1));
 
-  for (auto x : vec.what()) {
+  // for (auto x : vec.what()) {
 
-    std::println("What? : {}", x);
-  }
+  //   std::println("What? : {}", x);
+  // }
 
   std::println("Passed");
   return 0;
