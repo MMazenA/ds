@@ -52,9 +52,9 @@ public:
     using difference_type = std::ptrdiff_t;
 
     Iterator() = default;
-    Iterator(pointer ptr, optional_int start = std::nullopt,
+    Iterator(pointer ptr, optional_int iter_start = std::nullopt,
              optional_int end = std::nullopt, optional_int step = std::nullopt)
-        : m_ptr(ptr), m_start(start), m_end(end), m_step(step) {};
+        : m_ptr(ptr), m_start(iter_start), m_end(end), m_step(step) {};
 
     Iterator(const Iterator &other) = default;
     Iterator &operator=(const Iterator &other) = default;
@@ -121,24 +121,37 @@ public:
   };
 
 public:
-  class IteratorWrapper {
+  class SliceWrapper {
   public:
-    explicit IteratorWrapper(Vector &parent, optional_int i = std::nullopt,
-                             optional_int j = std::nullopt,
-                             optional_int k = std::nullopt)
-        : m_parent(parent), m_i(i), m_j(j), m_k(k) {};
+    explicit SliceWrapper(Vector &parent, optional_int start_idx,
+                          optional_int end_idx, optional_int step_val)
+        : m_parent(parent) {
+      m_start = start_idx.has_value() ? start_idx.value() : 0;
+      m_end = end_idx.has_value() ? end_idx.value()
+                                  : static_cast<int64_t>(m_parent.m_size);
+      m_step = step_val.has_value() ? step_val.value() : 1;
+    };
 
-    Iterator<pointer> begin() { return m_parent.begin(); };
-    Iterator<pointer> end() { return m_parent.end(); };
+    Iterator<pointer> begin() {
+      return Iterator<pointer>(&m_parent.m_raw[m_start], std::nullopt,
+                               std::nullopt, m_step);
+    };
+    Iterator<pointer> end() {
+      return Iterator<pointer>(&m_parent.m_raw[m_end]);
+    };
 
   private:
     Vector<value_type> &m_parent;
-    optional_int m_i;
-    optional_int m_j;
-    optional_int m_k;
+    int64_t m_start;
+    int64_t m_end;
+    int64_t m_step;
   };
 
-  IteratorWrapper what() { return IteratorWrapper(*this); }
+  SliceWrapper slice(optional_int start_idx = std::nullopt,
+                     optional_int end_idx = std::nullopt,
+                     optional_int step_val = optional_int(1)) {
+    return SliceWrapper(*this, start_idx, end_idx, step_val);
+  }
 
   Vector() = default;
   Vector(const self &other);
