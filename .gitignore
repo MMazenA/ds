@@ -75,3 +75,7 @@ dkms.conf
 
 
 # End of https://www.gitignore.io/api/c,c++,cmake
+
+build
+.cache
+

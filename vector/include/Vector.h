@@ -72,7 +72,6 @@ public:
 public:
   /**
    * Wrapper class to return iterable object that obeys slicing constraints
-   *
    */
   class iterator_wrapper {
   public:

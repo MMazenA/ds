@@ -8,6 +8,8 @@
 #include <string>
 #include <thread>
 
+using std::println;
+
 struct LargeStruct {
   LargeStruct(std::size_t s = 65536) : size(s), data(new double[s]) {
     for (std::size_t i = 0; i < size; ++i) {
@@ -65,8 +67,7 @@ void test_move(const int &iterations, bool move) {
   }
   auto end = std::chrono::high_resolution_clock::now();
   auto duration = duration_cast<std::chrono::milliseconds>(end - start).count();
-  std::println("Time {1}: {0} ms", duration,
-               move ? "with move" : "without move");
+  println("Time {1}: {0} ms", duration, move ? "with move" : "without move");
 }
 
 int main() {
@@ -83,24 +84,19 @@ int main() {
   for (auto x : vec) {
     std::print("{0} ", x);
   }
-  std::println("]");
+  println("]");
 
-  std::println("");
-  for (auto x : vec.slice(ds::start, ds::end, 2)) {
-    std::println("{0}", x);
+  println("");
+  for (auto x : vec.slice(2, ds::end, 2)) {
+    println("{0}", x);
   }
 
   vec.push_back(3);
 
-  std::println("");
-  std::println("");
-  std::println("reverse indexing: {0}", vec(-1));
+  println("");
+  println("");
+  println("reverse indexing: {0}", vec(-1));
 
-  // for (auto x : vec.what()) {
-
-  //   std::println("What? : {}", x);
-  // }
-
-  std::println("Passed");
+  println("Passed");
   return 0;
 }

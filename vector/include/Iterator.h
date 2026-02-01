@@ -76,7 +76,7 @@ public:
   }
 
   Iterator &operator--() {
-    m_ptr_current--;
+    m_ptr_current -= m_step;
     return *this;
   }
 
@@ -84,26 +84,6 @@ public:
     Iterator tmp = *this;
     --(*this);
     return tmp;
-  }
-
-  Iterator &operator-=(int x) {
-    m_ptr_current -= x;
-    return *this;
-  }
-
-  Iterator &operator+=(int x) {
-    m_ptr_current += x;
-    return *this;
-  }
-
-  Iterator &operator+(int x) {
-    m_ptr_current += x;
-    return *this;
-  }
-
-  Iterator &operator-(int x) {
-    m_ptr_current -= x;
-    return *this;
   }
 
   friend bool operator==(const Iterator &a, const Iterator &b) {
