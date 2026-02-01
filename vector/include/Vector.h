@@ -182,7 +182,7 @@ template <typename T> Vector<T>::Vector(const Vector &other) {
 }
 
 template <typename T> Vector<T> &Vector<T>::operator=(const Vector &other) {
-  if (other != this) {
+  if (&other != this) {
     m_capacity = other.m_size;
     m_resize(m_capacity);
     std::uninitialized_copy(other.m_raw, other.m_raw + other.m_size, m_raw);
@@ -295,7 +295,7 @@ template <typename T> void Vector<T>::push_back(T &&value) {
   }
 
   std::construct_at(&m_raw[m_size], std::move(value));
-  value = ++m_size;
+  ++m_size;
 }
 
 template <typename T> T &Vector<T>::operator()(int32_t i) {
