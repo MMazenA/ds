@@ -1,7 +1,6 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#include <Iterator.h>
 #include <algorithm>
 #include <cstddef>
 #include <format>
@@ -15,7 +14,7 @@ namespace ds {
 constexpr inline std::optional<int64_t> start = std::nullopt;
 constexpr inline std::optional<int64_t> end = std::nullopt;
 
-template <typename T> class vector {
+template <typename T> class Vector {
 
   /**
    * Vector Notes
@@ -39,7 +38,7 @@ template <typename T> class vector {
    */
 
 public:
-  using self = vector;
+  using self = Vector;
   using value_type = T;
   using pointer = value_type *;
   using reference = value_type &;
@@ -47,12 +46,119 @@ public:
   using size_type = size_t;
   using optional_int = std::optional<int64_t>;
 
-  vector() = default;
-  vector(const self &other);
-  vector &operator=(const self &other);
-  vector(self &&other) noexcept;
-  vector operator=(self &&other) noexcept;
-  ~vector();
+  template <std::bidirectional_iterator iter> class Iterator {
+    // concept provides compile-time constraints, dont have to actually use iter
+  public:
+    using difference_type = std::ptrdiff_t;
+
+    Iterator() = default;
+    Iterator(pointer ptr, optional_int iter_start = std::nullopt,
+             optional_int end = std::nullopt, optional_int step = std::nullopt)
+        : m_ptr(ptr), m_start(iter_start), m_end(end), m_step(step) {};
+
+    Iterator(const Iterator &other) = default;
+    Iterator &operator=(const Iterator &other) = default;
+    Iterator(Iterator &&other) noexcept = default;
+    Iterator &operator=(Iterator &&other) noexcept = default;
+
+    reference operator*() const { return *m_ptr; };
+    pointer operator->() { return m_ptr; };
+
+    Iterator &operator++() {
+      m_ptr += m_step.has_value() ? m_step.value() : 1;
+      return *this;
+    }
+
+    Iterator operator++(int) {
+      Iterator tmp = *this;
+      ++(*this);
+      return tmp;
+    }
+
+    Iterator &operator--() {
+      m_ptr--;
+      return *this;
+    }
+
+    Iterator operator--(int) {
+      Iterator tmp = *this;
+      --(*this);
+      return tmp;
+    }
+
+    Iterator &operator-=(int x) {
+      m_ptr -= x;
+      return *this;
+    }
+
+    Iterator &operator+=(int x) {
+      m_ptr += x;
+      return *this;
+    }
+
+    Iterator &operator+(int x) {
+      m_ptr += x;
+      return *this;
+    }
+
+    Iterator &operator-(int x) {
+      m_ptr -= x;
+      return *this;
+    }
+
+    friend bool operator==(const Iterator &a, const Iterator &b) {
+      return a.m_ptr == b.m_ptr;
+    }
+    friend bool operator!=(const Iterator &a, const Iterator &b) {
+      return a.m_ptr != b.m_ptr;
+    }
+
+  private:
+    pointer m_ptr;
+    optional_int m_start;
+    optional_int m_end;
+    optional_int m_step;
+  };
+
+public:
+  class SliceWrapper {
+  public:
+    explicit SliceWrapper(Vector &parent, optional_int start_idx,
+                          optional_int end_idx, optional_int step_val)
+        : m_parent(parent) {
+      m_start = start_idx.has_value() ? start_idx.value() : 0;
+      m_end = end_idx.has_value() ? end_idx.value()
+                                  : static_cast<int64_t>(m_parent.m_size);
+      m_step = step_val.has_value() ? step_val.value() : 1;
+    };
+
+    Iterator<pointer> begin() {
+      return Iterator<pointer>(&m_parent.m_raw[m_start], std::nullopt,
+                               std::nullopt, m_step);
+    };
+    Iterator<pointer> end() {
+      return Iterator<pointer>(&m_parent.m_raw[m_end]);
+    };
+
+  private:
+    Vector<value_type> &m_parent;
+    int64_t m_start;
+    int64_t m_end;
+    int64_t m_step;
+  };
+
+  SliceWrapper slice(optional_int start_idx = std::nullopt,
+                     optional_int end_idx = std::nullopt,
+                     optional_int step_val = optional_int(1)) {
+    return SliceWrapper(*this, start_idx, end_idx, step_val);
+  }
+
+  Vector() = default;
+  Vector(const self &other);
+  Vector &operator=(const self &other);
+  Vector(self &&other) noexcept;
+  Vector operator=(self &&other) noexcept;
+  ~Vector();
 
   void push_back(const T &value);
   void push_back(T &&value);
@@ -64,45 +170,10 @@ public:
   reference operator()(int32_t i, int32_t j);
   reference operator()(int32_t i, int32_t j, int32_t k);
 
-  Iterator<value_type> begin();
-  Iterator<value_type> end();
-  Iterator<value_type> rbegin();
-  Iterator<value_type> rend();
-
-public:
-  /**
-   * Wrapper class to return iterable object that obeys slicing constraints
-   */
-  class iterator_wrapper {
-  public:
-    explicit iterator_wrapper(const vector &parent, optional_int start,
-                              optional_int end, optional_int step)
-        : m_parent(parent) {
-      m_start = start.has_value() ? start.value() : 0;
-      m_end = end.has_value() ? end.value() : m_parent.m_size;
-      m_step = step.has_value() ? step.value() : 1;
-    };
-
-    Iterator<value_type> begin() {
-      return Iterator<value_type>(&(m_parent.m_raw[m_start]), m_step);
-    };
-    Iterator<value_type> end() {
-
-      return Iterator<value_type>(&(m_parent.m_raw[m_end]), m_step);
-    };
-
-  private:
-    const ds::vector<value_type> &m_parent;
-    int64_t m_start;
-    int64_t m_end;
-    int64_t m_step;
-  };
-
-  iterator_wrapper slice(optional_int start = optional_int(0),
-                         optional_int end = std::nullopt,
-                         optional_int step = optional_int(1)) {
-    return iterator_wrapper(*this, start, end, step);
-  }
+  Iterator<pointer> begin();
+  Iterator<pointer> end();
+  Iterator<pointer> rbegin();
+  Iterator<pointer> rend();
 
   size_type getSize() const { return m_size; }
   size_type getCapacity() const { return m_capacity; }
@@ -113,18 +184,18 @@ private:
   size_type m_size = 0;
   size_type m_capacity = 0;
 
-  void m_resize(size_t newCapacity);
+  void m_resize(size_t new_capacity);
 };
 
-template <typename T> vector<T>::vector(const vector &other) {
+template <typename T> Vector<T>::Vector(const Vector &other) {
   m_capacity = other.m_size;
   m_resize(m_capacity);
   std::uninitialized_copy(other.m_raw, other.m_raw + other.m_size, m_raw);
   m_size = other.m_size;
 }
 
-template <typename T> vector<T> &vector<T>::operator=(const vector &other) {
-  if (other != this) {
+template <typename T> Vector<T> &Vector<T>::operator=(const Vector &other) {
+  if (&other != this) {
     m_capacity = other.m_size;
     m_resize(m_capacity);
     std::uninitialized_copy(other.m_raw, other.m_raw + other.m_size, m_raw);
@@ -133,7 +204,7 @@ template <typename T> vector<T> &vector<T>::operator=(const vector &other) {
   return *this;
 }
 
-template <typename T> vector<T>::vector(vector &&other) noexcept {
+template <typename T> Vector<T>::Vector(Vector &&other) noexcept {
   this->m_capacity = other.m_capacity;
   this->m_size = other.m_size;
   this->m_raw = other.m_raw;
@@ -143,7 +214,7 @@ template <typename T> vector<T>::vector(vector &&other) noexcept {
   other.m_raw = 0;
 }
 
-template <typename T> vector<T> vector<T>::operator=(vector &&other) noexcept {
+template <typename T> Vector<T> Vector<T>::operator=(Vector &&other) noexcept {
   this->m_capacity = other.m_capacity;
   this->m_size = other.m_size;
   this->m_raw = other.m_raw;
@@ -155,14 +226,14 @@ template <typename T> vector<T> vector<T>::operator=(vector &&other) noexcept {
   return *this;
 }
 
-template <typename T> vector<T>::~vector() {
+template <typename T> Vector<T>::~Vector() {
   std::destroy_n(m_raw, m_size);
   if (m_raw) {
     m_allocator.deallocate(m_raw, m_capacity);
   }
 }
 
-template <typename T> void vector<T>::m_resize(size_t newCapacity) {
+template <typename T> void Vector<T>::m_resize(size_t new_capacity) {
   /**
    * 1. Allocate double memory, but dont construct any objects in the newly
    * duplicated space
@@ -198,16 +269,16 @@ template <typename T> void vector<T>::m_resize(size_t newCapacity) {
    * I think that depending on the alignment of my <T>, I might end up with
    * more space than I know, which may be enough space to handle another <T>?
    */
-  T *new_raw = m_allocator.allocate(newCapacity);
+  T *new_raw = m_allocator.allocate(new_capacity);
   std::uninitialized_move_n(m_raw, m_size, new_raw);
   std::destroy_n(m_raw, m_size);
   m_allocator.deallocate(m_raw, m_capacity);
 
   m_raw = new_raw;
-  m_capacity = newCapacity;
+  m_capacity = new_capacity;
 }
 
-template <typename T> void vector<T>::push_back(const T &value) {
+template <typename T> void Vector<T>::push_back(const T &value) {
   /**
    * https://en.cppreference.com/w/cpp/memory/construct_at
    * construct_at needs trivial object
@@ -231,27 +302,27 @@ template <typename T> void vector<T>::push_back(const T &value) {
  * It makes more sense in a constructer to
  *
  */
-template <typename T> void vector<T>::push_back(T &&value) {
+template <typename T> void Vector<T>::push_back(T &&value) {
   if (m_size == m_capacity) {
     m_resize(m_capacity == 0 ? 1 : m_capacity * 2);
   }
 
   std::construct_at(&m_raw[m_size], std::move(value));
-  value = ++m_size;
+  ++m_size;
 }
 
-template <typename T> T &vector<T>::operator()(int32_t i) {
+template <typename T> T &Vector<T>::operator()(int32_t i) {
   return operator()(i, 0, 0);
 }
 
-template <typename T> T &vector<T>::operator[](int32_t i) {
+template <typename T> T &Vector<T>::operator[](int32_t i) {
   return operator()(i, 0, 0);
 }
-template <typename T> T &vector<T>::operator()(int32_t i, int32_t j) {
+template <typename T> T &Vector<T>::operator()(int32_t i, int32_t j) {
   return operator()(i, j, 0);
 }
 template <typename T>
-T &vector<T>::operator()(int32_t i, int32_t j, int32_t k) {
+T &Vector<T>::operator()(int32_t i, int32_t j, int32_t k) {
   if (i >= static_cast<int32_t>(m_size)) {
     throw std::out_of_range(std::format(
         "ds::vector Error: Index {0} out of range for size {1}", i, m_size));
@@ -266,20 +337,20 @@ T &vector<T>::operator()(int32_t i, int32_t j, int32_t k) {
 
 //==============================iter
 
-template <typename T> Iterator<T> vector<T>::begin() {
-  return Iterator<T>(&m_raw[0]);
+template <typename T> Vector<T>::Iterator<T *> Vector<T>::begin() {
+  return Iterator<T *>(&m_raw[0]);
 }
 
-template <typename T> Iterator<T> vector<T>::end() {
-  return Iterator<T>(&m_raw[m_size]);
+template <typename T> Vector<T>::Iterator<T *> Vector<T>::end() {
+  return Iterator<T *>(&m_raw[m_size]);
 }
 
-template <typename T> Iterator<T> vector<T>::rbegin() {
-  return Iterator<T>(&m_raw[m_size]);
+template <typename T> Vector<T>::Iterator<T *> Vector<T>::rbegin() {
+  return Iterator<T *>(&m_raw[m_size]);
 }
 
-template <typename T> Iterator<T> vector<T>::rend() {
-  return Iterator<T>(&m_raw[0]);
+template <typename T> Vector<T>::Iterator<T *> Vector<T>::rend() {
+  return Iterator<T *>(&m_raw[0]);
 }
 
 } // namespace ds

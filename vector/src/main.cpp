@@ -59,7 +59,7 @@ struct LargeStruct {
 };
 
 void test_move(const int &iterations, bool move) {
-  ds::vector<LargeStruct> vec;
+  ds::Vector<LargeStruct> vec;
   auto start = std::chrono::high_resolution_clock::now();
   for (int i = 0; i < iterations; ++i) {
     LargeStruct temp;
@@ -74,7 +74,7 @@ int main() {
   const int iterations = 1000;
   test_move(iterations, false);
   test_move(iterations, true);
-  ds::vector<int> vec;
+  ds::Vector<int> vec;
   vec.push_back(5);
   vec.push_back(15);
   vec.push_back(20);

@@ -1,4 +1,9 @@
 .vscode
+build/
+build-release/
+**/build/
+**/.cache/
+vcpkg_installed/
 
 # Created by https://www.gitignore.io/api/c,c++,cmake
 

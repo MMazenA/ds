@@ -23,7 +23,6 @@ public:
   using self = Iterator;
   using optional_int = std::optional<int64_t>;
 
-public:
   Iterator() = default;
   Iterator(pointer ptr_start)
       : m_ptr_current(ptr_start), m_ptr_start(ptr_start) {};
@@ -46,7 +45,7 @@ public:
     m_step = step.has_value() ? step.value() : 1;
   }
   Iterator(const Iterator &other) { m_ptr_current = other.m_ptr_current; }
-  Iterator(Iterator &&other) {
+  Iterator(Iterator &&other) noexcept {
     m_ptr_current = other.m_ptr_current;
     other.m_ptr_current = nullptr;
   }
@@ -54,7 +53,7 @@ public:
     m_ptr_current = other.m_ptr_current;
     return *this;
   }
-  Iterator operator=(self &&other) {
+  Iterator operator=(self &&other) noexcept {
     m_ptr_current = other.m_ptr_current;
     other.m_ptr_current = nullptr;
     return *this;
