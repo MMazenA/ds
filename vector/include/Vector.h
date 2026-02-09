@@ -323,6 +323,9 @@ template <typename T> T &Vector<T>::operator()(int32_t i, int32_t j) {
 }
 template <typename T>
 T &Vector<T>::operator()(int32_t i, int32_t j, int32_t k) {
+  // todo: actually use these for end, and indexing
+  (void)j;
+  (void)k;
   if (i >= static_cast<int32_t>(m_size)) {
     throw std::out_of_range(std::format(
         "ds::vector Error: Index {0} out of range for size {1}", i, m_size));
