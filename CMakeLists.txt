@@ -22,3 +22,4 @@ if(BUILD_BENCHMARKS)
 endif()
 
 add_subdirectory(vector)
+add_subdirectory(typed_container)

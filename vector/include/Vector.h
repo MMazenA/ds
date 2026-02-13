@@ -1,5 +1,5 @@
-#ifndef VECTOR_H
-#define VECTOR_H
+#ifndef DS_VECTOR_H
+#define DS_VECTOR_H
 
 #include <algorithm>
 #include <cstddef>

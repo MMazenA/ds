@@ -1,7 +1,7 @@
 project(typed_container LANGUAGES CXX)
 
-add_executable(main src/main.cpp)
-target_include_directories(main PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+add_executable(typed_container_main src/main.cpp)
+target_include_directories(typed_container_main PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 if(BUILD_TESTING)
   add_executable(typed_container_test test/typed_container_test.cpp)
