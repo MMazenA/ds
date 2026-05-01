@@ -1,5 +1,12 @@
 # ds
 
+## vcpkg setup
+
+```bash
+  git submodule update --init --recursive
+  external\vcpkg\bootstrap-vcpkg.bat 
+```
+
 ## Build
 
 ```bash
@@ -13,13 +20,3 @@ cmake --build build
 ctest --preset dev
 ```
 
-## Benchmark
-
-```bash
-cmake --preset release
-cmake --build build-release
-
-# run and compare ds::Vector vs std::vector
-./build-release/vector/vector_bench --benchmark_out=build-release/results.json --benchmark_out_format=json
-python3 scripts/compare_vectors.py build-release/results.json
-```
