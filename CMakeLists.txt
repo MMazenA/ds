@@ -16,9 +16,4 @@ if(BUILD_TESTING)
   include(GoogleTest)
 endif()
 
-option(BUILD_BENCHMARKS "Build benchmarks" ON)
-if(BUILD_BENCHMARKS)
-  find_package(benchmark CONFIG REQUIRED)
-endif()
-
 add_subdirectory(vector)
