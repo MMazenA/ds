@@ -6,6 +6,7 @@
 #include <optional>
 #include <expected>
 #include <string>
+#include <utility>
 
 namespace ds {
     template<typename Key>
@@ -44,7 +45,7 @@ namespace ds {
         class ConversionProxy{
             const std::any& m_proxy_item;
             public:
-            explicit (const std::any& proxy_item) : m_proxy_item(proxy_item){}
+            explicit ConversionProxy(const std::any& proxy_item) : m_proxy_item(proxy_item){}
             ConversionProxy(const ConversionProxy&) = delete;
             ConversionProxy(ConversionProxy&&) = delete;
             ConversionProxy& operator=(const ConversionProxy&) = delete;
@@ -59,7 +60,7 @@ namespace ds {
             }
            };
     public:
-        AnyMap<Key>() = default;
+        AnyMap() = default;
 
         void set(const Key& key, std::any &&value){
             m_data[key] = std::move(value);
