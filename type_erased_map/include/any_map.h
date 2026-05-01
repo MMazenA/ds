@@ -24,19 +24,38 @@ namespace ds {
          * in unexpected return std::string
          * 
          * All callers are forced into lhs std::expected, T gets deducted through 
-         * implict conversion
+         * implict conversion by compiler, teh same thing it does when it sees
+         * float x = int + float, 2 different types get to still interact with each other
+         * cuz int can promote up to float, same concept being used here
          * 
+         * 
+         * std::any_cast is tracking some kind of typeid, and requires
+         * EXACT type matches, the lhs conversion has to be exactly the same
+         * as the stored type 
+         * 
+         * 
+         * The conversion operator is ref qualified &&, i basically want to enforce
+         * the fact that this object must be ephemeral, m_proxy_item may dangle
+         * its only intended use is to generate a typed copy, and then die
+         * 
+         * consume once view, deleted everything except for the expected
+         * ctor
          */
-        struct ConversionProxy{
+        class ConversionProxy{
             const std::any& m_proxy_item;
-            ConversionProxy(const std::any& proxy_item) : m_proxy_item(proxy_item){}
-    
+            public:
+            explicit (const std::any& proxy_item) : m_proxy_item(proxy_item){}
+            ConversionProxy(const ConversionProxy&) = delete;
+            ConversionProxy(ConversionProxy&&) = delete;
+            ConversionProxy& operator=(const ConversionProxy&) = delete;
+            ConversionProxy& operator=(ConversionProxy&&) = delete;
+            
             template <typename T>
-            operator std::expected<T, std::string>() const {
+            [[nodiscard]] operator std::expected<T, std::string>() const &&{
                 if(auto *p =  std::any_cast<T>(&m_proxy_item)){
                     return std::expected<T, std::string>{std::in_place, *p};
                 }
-                return std::expected<T, std::string>{std::unexpect, "l-value incorrect type"};
+                return std::expected<T, std::string>{std::unexpect, "lhs-value incorrect type"};
             }
            };
     public:
