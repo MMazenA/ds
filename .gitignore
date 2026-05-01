@@ -83,4 +83,5 @@ dkms.conf
 
 build
 .cache
+vector/bin-int/
 
