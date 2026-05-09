@@ -1,13 +1,12 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+#include "VectorIterator.h"
 #include <algorithm>
 #include <cstddef>
 #include <format>
 #include <memory>
 #include <optional>
-#include <print>
-#include <ranges>
 #include <stdexcept>
 #include <utility>
 
@@ -47,81 +46,8 @@ public:
   using size_type = size_t;
   using optional_int = std::optional<int64_t>;
 
-  template <std::bidirectional_iterator iter> class Iterator {
-    // concept provides compile-time constraints, dont have to actually use iter
-  public:
-    using difference_type = std::ptrdiff_t;
+  using iterator = VectorIterator<value_type>;
 
-    Iterator() = default;
-    Iterator(pointer ptr, optional_int iter_start = std::nullopt,
-             optional_int end = std::nullopt, optional_int step = std::nullopt)
-        : m_ptr(ptr), m_start(iter_start), m_end(end), m_step(step) {};
-
-    Iterator(const Iterator &other) = default;
-    Iterator &operator=(const Iterator &other) = default;
-    Iterator(Iterator &&other) noexcept = default;
-    Iterator &operator=(Iterator &&other) noexcept = default;
-
-    reference operator*() const { return *m_ptr; };
-    pointer operator->() { return m_ptr; };
-
-    Iterator &operator++() {
-      m_ptr += m_step.has_value() ? m_step.value() : 1;
-      return *this;
-    }
-
-    Iterator operator++(int) {
-      Iterator tmp = *this;
-      ++(*this);
-      return tmp;
-    }
-
-    Iterator &operator--() {
-      m_ptr--;
-      return *this;
-    }
-
-    Iterator operator--(int) {
-      Iterator tmp = *this;
-      --(*this);
-      return tmp;
-    }
-
-    Iterator &operator-=(int x) {
-      m_ptr -= x;
-      return *this;
-    }
-
-    Iterator &operator+=(int x) {
-      m_ptr += x;
-      return *this;
-    }
-
-    Iterator &operator+(int x) {
-      m_ptr += x;
-      return *this;
-    }
-
-    Iterator &operator-(int x) {
-      m_ptr -= x;
-      return *this;
-    }
-
-    friend bool operator==(const Iterator &a, const Iterator &b) {
-      return a.m_ptr == b.m_ptr;
-    }
-    friend bool operator!=(const Iterator &a, const Iterator &b) {
-      return a.m_ptr != b.m_ptr;
-    }
-
-  private:
-    pointer m_ptr;
-    optional_int m_start;
-    optional_int m_end;
-    optional_int m_step;
-  };
-
-public:
   class SliceWrapper {
   public:
     explicit SliceWrapper(Vector &parent, optional_int start_idx,
@@ -133,13 +59,11 @@ public:
       m_step = step_val.has_value() ? step_val.value() : 1;
     };
 
-    Iterator<pointer> begin() {
-      return Iterator<pointer>(&m_parent.m_raw[m_start], std::nullopt,
-                               std::nullopt, m_step);
+    iterator begin() {
+      return iterator(&m_parent.m_raw[m_start], std::nullopt, std::nullopt,
+                      m_step);
     };
-    Iterator<pointer> end() {
-      return Iterator<pointer>(&m_parent.m_raw[m_end]);
-    };
+    iterator end() { return iterator(&m_parent.m_raw[m_end]); };
 
   private:
     Vector<value_type> &m_parent;
@@ -171,13 +95,13 @@ public:
   reference operator()(int32_t i, int32_t j);
   reference operator()(int32_t i, int32_t j, int32_t k);
 
-  Iterator<pointer> begin();
-  Iterator<pointer> end();
-  Iterator<pointer> rbegin();
-  Iterator<pointer> rend();
+  iterator begin();
+  iterator end();
+  iterator rbegin();
+  iterator rend();
 
-  size_type getSize() const { return m_size; }
-  size_type getCapacity() const { return m_capacity; }
+  [[nodiscard]] size_type get_size() const { return m_size; }
+  [[nodiscard]] size_type get_capacity() const { return m_capacity; }
 
 private:
   pointer m_raw = nullptr;
@@ -324,6 +248,10 @@ template <typename T> T &Vector<T>::operator()(int32_t i, int32_t j) {
 }
 template <typename T>
 T &Vector<T>::operator()(int32_t i, int32_t j, int32_t k) {
+  // @todo hiding warnings here, will need to implement this level of indexing
+  (void)k;
+  (void)j;
+
   if (i >= static_cast<int32_t>(m_size)) {
     throw std::out_of_range(std::format(
         "ds::vector Error: Index {0} out of range for size {1}", i, m_size));
@@ -338,20 +266,20 @@ T &Vector<T>::operator()(int32_t i, int32_t j, int32_t k) {
 
 //==============================iter
 
-template <typename T> Vector<T>::Iterator<T *> Vector<T>::begin() {
-  return Iterator<T *>(&m_raw[0]);
+template <typename T> Vector<T>::iterator Vector<T>::begin() {
+  return iterator(&m_raw[0]);
 }
 
-template <typename T> Vector<T>::Iterator<T *> Vector<T>::end() {
-  return Iterator<T *>(&m_raw[m_size]);
+template <typename T> Vector<T>::iterator Vector<T>::end() {
+  return iterator(&m_raw[m_size]);
 }
 
-template <typename T> Vector<T>::Iterator<T *> Vector<T>::rbegin() {
-  return Iterator<T *>(&m_raw[m_size]);
+template <typename T> Vector<T>::iterator Vector<T>::rbegin() {
+  return iterator(&m_raw[m_size]);
 }
 
-template <typename T> Vector<T>::Iterator<T *> Vector<T>::rend() {
-  return Iterator<T *>(&m_raw[0]);
+template <typename T> Vector<T>::iterator Vector<T>::rend() {
+  return iterator(&m_raw[0]);
 }
 
 } // namespace ds
