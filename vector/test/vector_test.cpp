@@ -9,8 +9,8 @@ protected:
 };
 
 TEST_F(VectorTest, DefaultConstructorCreatesEmptyVector) {
-  EXPECT_EQ(vec.getSize(), 0);
-  EXPECT_EQ(vec.getCapacity(), 0);
+  EXPECT_EQ(vec.get_size(), 0);
+  EXPECT_EQ(vec.get_capacity(), 0);
 }
 
 TEST_F(VectorTest, CopyConstructorCopiesElements) {
@@ -20,7 +20,7 @@ TEST_F(VectorTest, CopyConstructorCopiesElements) {
 
   ds::Vector<int> copy(vec);
 
-  EXPECT_EQ(copy.getSize(), 3);
+  EXPECT_EQ(copy.get_size(), 3);
   EXPECT_EQ(copy[0], 1);
   EXPECT_EQ(copy[1], 2);
   EXPECT_EQ(copy[2], 3);
@@ -32,8 +32,8 @@ TEST_F(VectorTest, CopyConstructorIsIndependent) {
 
   vec.push_back(2);
 
-  EXPECT_EQ(vec.getSize(), 2);
-  EXPECT_EQ(copy.getSize(), 1);
+  EXPECT_EQ(vec.get_size(), 2);
+  EXPECT_EQ(copy.get_size(), 1);
 }
 
 TEST_F(VectorTest, MoveConstructorTransfersOwnership) {
@@ -42,10 +42,10 @@ TEST_F(VectorTest, MoveConstructorTransfersOwnership) {
 
   ds::Vector<int> moved(std::move(vec));
 
-  EXPECT_EQ(moved.getSize(), 2);
+  EXPECT_EQ(moved.get_size(), 2);
   EXPECT_EQ(moved[0], 1);
   EXPECT_EQ(moved[1], 2);
-  EXPECT_EQ(vec.getSize(), 0);
+  EXPECT_EQ(vec.get_size(), 0);
 }
 
 TEST_F(VectorTest, CopyAssignmentCopiesElements) {
@@ -55,7 +55,7 @@ TEST_F(VectorTest, CopyAssignmentCopiesElements) {
   ds::Vector<int> other;
   other = vec;
 
-  EXPECT_EQ(other.getSize(), 2);
+  EXPECT_EQ(other.get_size(), 2);
   EXPECT_EQ(other[0], 1);
   EXPECT_EQ(other[1], 2);
 }
@@ -67,9 +67,9 @@ TEST_F(VectorTest, MoveAssignmentTransfersOwnership) {
   ds::Vector<int> other;
   other = std::move(vec);
 
-  EXPECT_EQ(other.getSize(), 2);
+  EXPECT_EQ(other.get_size(), 2);
   EXPECT_EQ(other[0], 1);
-  EXPECT_EQ(vec.getSize(), 0);
+  EXPECT_EQ(vec.get_size(), 0);
 }
 
 // ============== Push Back Tests ==============
@@ -78,14 +78,14 @@ TEST_F(VectorTest, PushBackLvalueAddsElement) {
   int val = 42;
   vec.push_back(val);
 
-  EXPECT_EQ(vec.getSize(), 1);
+  EXPECT_EQ(vec.get_size(), 1);
   EXPECT_EQ(vec[0], 42);
 }
 
 TEST_F(VectorTest, PushBackRvalueAddsElement) {
   vec.push_back(42);
 
-  EXPECT_EQ(vec.getSize(), 1);
+  EXPECT_EQ(vec.get_size(), 1);
   EXPECT_EQ(vec[0], 42);
 }
 
@@ -94,7 +94,7 @@ TEST_F(VectorTest, PushBackMultipleElements) {
     vec.push_back(i);
   }
 
-  EXPECT_EQ(vec.getSize(), 10);
+  EXPECT_EQ(vec.get_size(), 10);
   for (int i = 0; i < 10; ++i) {
     EXPECT_EQ(vec[i], i);
   }
@@ -102,17 +102,17 @@ TEST_F(VectorTest, PushBackMultipleElements) {
 
 TEST_F(VectorTest, PushBackTriggersResize) {
   vec.push_back(1);
-  EXPECT_EQ(vec.getCapacity(), 1);
+  EXPECT_EQ(vec.get_capacity(), 1);
 
   vec.push_back(2);
-  EXPECT_EQ(vec.getCapacity(), 2);
+  EXPECT_EQ(vec.get_capacity(), 2);
 
   vec.push_back(3);
-  EXPECT_EQ(vec.getCapacity(), 4);
+  EXPECT_EQ(vec.get_capacity(), 4);
 
   vec.push_back(4);
   vec.push_back(5);
-  EXPECT_EQ(vec.getCapacity(), 8);
+  EXPECT_EQ(vec.get_capacity(), 8);
 }
 
 // ============== Element Access Tests ==============
@@ -309,7 +309,7 @@ TEST(VectorStringTest, WorksWithStrings) {
   vec.push_back("hello");
   vec.push_back("world");
 
-  EXPECT_EQ(vec.getSize(), 2);
+  EXPECT_EQ(vec.get_size(), 2);
   EXPECT_EQ(vec[0], "hello");
   EXPECT_EQ(vec[1], "world");
 }
@@ -337,7 +337,7 @@ TEST_F(VectorTest, EmptyVectorIteration) {
 TEST_F(VectorTest, SingleElementVector) {
   vec.push_back(42);
 
-  EXPECT_EQ(vec.getSize(), 1);
+  EXPECT_EQ(vec.get_size(), 1);
   EXPECT_EQ(vec[0], 42);
   EXPECT_EQ(vec(-1), 42);
 }
@@ -349,7 +349,7 @@ TEST_F(VectorTest, LargeNumberOfElements) {
     vec.push_back(i);
   }
 
-  EXPECT_EQ(vec.getSize(), count);
+  EXPECT_EQ(vec.get_size(), count);
   EXPECT_EQ(vec[0], 0);
   EXPECT_EQ(vec[count - 1], count - 1);
   EXPECT_EQ(vec(-1), count - 1);
