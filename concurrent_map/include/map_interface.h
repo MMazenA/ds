@@ -12,7 +12,7 @@ concept map_interface_c = requires(T &map, const T &const_map,
   { const_map.get(const_key) } -> std::same_as<std::optional<V>>;
   { const_map.contains(const_key) } -> std::same_as<bool>;
   { map.erase(const_key) } -> std::same_as<bool>;
-  { const_map.size() } -> std::same_as<size_t>;
+  { const_map.size() } -> std::same_as<std::size_t>;
 };
 
 #endif
