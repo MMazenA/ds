@@ -18,3 +18,4 @@ endif()
 
 add_subdirectory(vector)
 add_subdirectory(type_erased_map)
+add_subdirectory(concurrent_map)
