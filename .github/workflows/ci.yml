@@ -5,7 +5,6 @@ on:
     branches: [main]
   pull_request:
 
-# Cancel a superseded in-progress run when a newer commit lands on the same ref.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -26,10 +25,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y clang libc++-dev libc++abi-dev ninja-build
 
-      # vcpkg's "files" binary cache (~/.cache/vcpkg/archives) is keyed INTERNALLY by per-package
-      # ABI hash (which includes compiler + flags), so a stale restore is always safe: vcpkg
-      # rebuilds anything whose ABI changed. First run builds gtest/benchmark from source (slow)
-      # and uploads the archives; later runs restore them and skip the build (fast).
       - name: Cache vcpkg binary archives
         uses: actions/cache@v4
         with:
