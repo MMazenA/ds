@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# Cancel a superseded in-progress run when a newer commit lands on the same ref.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    name: Build & Test (Ubuntu, Clang + libc++)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout (with vcpkg submodule)
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Clang, libc++, and Ninja
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang libc++-dev libc++abi-dev ninja-build
+
+      # vcpkg's "files" binary cache (~/.cache/vcpkg/archives) is keyed INTERNALLY by per-package
+      # ABI hash (which includes compiler + flags), so a stale restore is always safe: vcpkg
+      # rebuilds anything whose ABI changed. First run builds gtest/benchmark from source (slow)
+      # and uploads the archives; later runs restore them and skip the build (fast).
+      - name: Cache vcpkg binary archives
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/vcpkg/archives
+          key: vcpkg-libcxx-${{ runner.os }}-${{ hashFiles('vcpkg.json', 'triplets/*.cmake') }}
+          restore-keys: |
+            vcpkg-libcxx-${{ runner.os }}-
+
+      - name: Bootstrap vcpkg
+        run: ./external/vcpkg/bootstrap-vcpkg.sh -disableMetrics
+
+      - name: Configure (ci preset)
+        run: cmake --preset ci
+
+      - name: Build
+        run: cmake --build build
+
+      - name: Run tests
+        run: ctest --preset ci
