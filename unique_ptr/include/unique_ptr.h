@@ -9,7 +9,10 @@ template <typename T> class UniquePtr {
 
 public:
   UniquePtr() = default;
-  UniquePtr(T *ptr) : m_ptr(ptr) {}
+  // really important explicit here
+  // if a func takes a uniqueptr, and someone passes in a raw ptr
+  // function has silently taken ownership lol
+  explicit UniquePtr(T *ptr) : m_ptr(ptr) {}
 
   UniquePtr(const UniquePtr &other) = delete;
   UniquePtr &operator=(const UniquePtr &other) = delete;
@@ -51,7 +54,7 @@ public:
       return;
     }
 
-    std::swap(other, *this);
+    std::swap(other.m_ptr, this->m_ptr);
   };
 
   // friend is needed here to make non member func, lhs is no longer implicit
@@ -60,14 +63,9 @@ public:
   }
 };
 
-template <typename T> DS::UniquePtr<T> make_unique(T &&object) {
-  T *ptr = new T{object};
-  return DS::UniquePtr<T>{ptr};
-}
-
 template <typename T, typename... P>
 DS::UniquePtr<T> make_unique(P &&...params) {
-  T *ptr = new T{std::forward(params)...};
+  T *ptr = new T{std::forward<decltype(params)>(params)...};
   return DS::UniquePtr<T>{ptr};
 }
 
