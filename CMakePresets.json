@@ -33,6 +33,19 @@
 "CMAKE_CXX_FLAGS": "-O3 -DNDEBUG -march=native -flto",
         "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/external/vcpkg/scripts/buildsystems/vcpkg.cmake"
       }
+    },
+    {
+      "name": "ci",
+      "inherits": "dev",
+      "displayName": "CI (Ubuntu, Clang + libc++)",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang",
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_CXX_FLAGS": "-stdlib=libc++ -O0 -Wreorder -Wformat=2 -Wall -Wextra -Wpedantic -Wshadow -Wnon-virtual-dtor -Wsign-conversion",
+        "CMAKE_EXE_LINKER_FLAGS": "-stdlib=libc++",
+        "VCPKG_OVERLAY_TRIPLETS": "${sourceDir}/triplets",
+        "VCPKG_TARGET_TRIPLET": "x64-linux-libcxx"
+      }
     }
   ],
   "buildPresets": [
@@ -43,12 +56,23 @@
     {
       "name": "release",
       "configurePreset": "release"
+    },
+    {
+      "name": "ci",
+      "configurePreset": "ci"
     }
   ],
   "testPresets": [
     {
       "name": "dev",
       "configurePreset": "dev",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "ci",
+      "configurePreset": "ci",
       "output": {
         "outputOnFailure": true
       }
