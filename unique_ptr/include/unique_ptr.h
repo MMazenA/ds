@@ -36,9 +36,10 @@ public:
 
   T *operator->() const noexcept { return m_ptr; };
 
-  void reset() noexcept {
+  void reset(T *new_ptr = nullptr) noexcept {
+    assert(new_ptr != m_ptr);
     delete m_ptr;
-    m_ptr = nullptr;
+    m_ptr = new_ptr;
   }
 
   operator bool() const noexcept { return m_ptr != nullptr; }
@@ -65,7 +66,7 @@ public:
 
 template <typename T, typename... P>
 DS::UniquePtr<T> make_unique(P &&...params) {
-  T *ptr = new T{std::forward<decltype(params)>(params)...};
+  T *ptr = new T{std::forward<P>(params)...};
   return DS::UniquePtr<T>{ptr};
 }
 
