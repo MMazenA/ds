@@ -37,7 +37,7 @@ public:
   T *operator->() const noexcept { return m_ptr; };
 
   void reset(T *new_ptr = nullptr) noexcept {
-    assert(new_ptr != nullptr && new_ptr != m_ptr);
+    assert(!(new_ptr == m_ptr && new_ptr == nullptr));
     delete m_ptr;
     m_ptr = new_ptr;
   }
@@ -68,7 +68,7 @@ template <typename T, typename... P>
 DS::UniquePtr<T> make_unique(P &&...params) {
   // not {}, because this will call the init list ctor
   // feels odd to the caller
-  // make_unique on std::vector, what are the params being passed in?
+  // make_unique on std::vector, what are the params being passed in?`
   T *ptr = new T(std::forward<P>(params)...);
   return DS::UniquePtr<T>{ptr};
 }
